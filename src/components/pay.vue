@@ -12,20 +12,31 @@
       <ul>   
         <li>
           <span>安全码</span>
-          <input type="text" placeholder="信用卡背面后三位" v-model="cardNum">
+          <input type="text" placeholder="信用卡背面后三位" v-model="safeCode">
         </li>
         <li>
           <span>有效期</span>
-          <input type="text" placeholder="月 / 年   示例:10/23（月/年）" v-model="bank">
+          <input type="text" @click="openPicker" placeholder="月 / 年   示例:10/23（月/年）" v-model="validity">
+          <mt-datetime-picker
+            v-model="validity"
+            ref="picker"
+            type="date"
+            year-format="{value} 年"
+            month-format="{value} 月"
+            @confirm="handleConfirm"
+            :startDate='startDate'
+            >
+          </mt-datetime-picker>
         </li>
         <li>
           <span>手机号</span>
-          <input type="text" placeholder="请输入手机号码" v-model="mount">
-          <span class="code">获取验证码</span>
+          <input type="number" placeholder="请输入手机号码" v-model="phone">
+          <span class="code" @click="sendCode" v-if="this.codejishi">获取验证码</span>
+          <span class="codejishi" v-else>{{codeTime}}秒后重试</span>
         </li>
         <li>
           <span>验证码</span>
-          <input type="text" placeholder="请输入验证码" v-model="phone">
+          <input type="number" placeholder="请输入验证码" v-model="code">
         </li>
         
       </ul>
@@ -36,30 +47,91 @@
         <span></span>
         <input type="button" value="确认付款" @click="tocashier">
       </div>
-      <div class="passway_tips">
-        <!-- <p>信息已安全加密，仅用于银行验证</p> -->
-      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { Toast, DatetimePicker  } from 'mint-ui'
 export default {
   name: 'test',
   data () {
     return {
-      name: '',
-      cardNum: '',
-      bank: '',
-      mount: '',
+      safeCode: '',
+      validity: '',
       phone: '',
-      passway: '',
+      code: '',
+
+      codeTime: 60,
+      codejishi: true,
+      startDate: new Date()
     }
   },
   methods:{
     tocashier(){
-      this.$router.push('/cashier')
+      var reg=/^((1[3,5,8][0-9])|(166)|(14[5,7])|(17[0,6,7,8])|(19[7]))\d{8}$/;
+
+      if(this.safeCode == '' || this.safeCode == ' ' || this.safeCode == null){
+        Toast({ message: '安全码错误', duration: 1500});
+      } else if(this.validity == '' || this.validity == ' ' || this.validity == null){
+        Toast({ message: '有效期错误', duration: 1500});
+      }else if(this.code == '' || this.code == ' ' || this.code == null){
+        Toast({ message: '验证码错误', duration: 1500});
+      }else if(this.phone == '' || this.phone == ' ' || this.phone == null || !reg.test(this.phone)){
+        Toast({ message: '预留手机号错误', duration: 1500});
+      } else {
+        this.$router.push({        
+          name:'cashier',
+          params: {
+            safeCode: this.safeCode,
+            validity: this.validity,          
+            name:this.$route.params.name,
+            cardNum:this.$route.params.cardNum,
+            bank:this.$route.params.bank,
+            mount:this.$route.params.mount,
+            phone:this.$route.params.phone,
+            passway:this.$route.params.passway
+          }
+        }) 
+      }
+    },
+    openPicker() {
+      this.$refs.picker.open();
+      document.getElementsByClassName("picker-slot")[2].style.display = 'none'   
+    },
+    handleConfirm(){ 
+      console.log(this.validity) ;
+    },
+    sendCode(){
+      let reg=/^((1[3,5,8][0-9])|(14[5,7])|(166)|(17[0,6,7,8])|(19[7]))\d{8}$/;
+      if(!reg.test(this.phone)){
+        Toast({ message: '手机号错误', duration: 1500})
+      } else{
+        // getCode({mob:this.phoneNum}).then(res => {
+        //   console.log(res)
+        // })
+        this.codejishi = false
+        console.log(this.codeTime)
+        this.codetime = setInterval(()=>{
+          // this.times.secs += 1
+          this.codeTime = parseInt(this.codeTime) - 1
+          
+          if(this.codeTime<10){
+            this.codeTime = "0"+ this.codeTime
+          } 
+          if (this.codeTime == "00"){
+            this.codejishi = true
+            this.codeTime = 60
+            clearInterval(this.codetime)
+          }
+          console.log(this.codeTime)
+        },1000)
+      }  
     }
+  },
+  mounted(){
+    console.log(this.$route.params)
+    this.phone = this.$route.params.phone
   }
   
 }
@@ -107,7 +179,7 @@ export default {
     span {
       float: right;
       // margin-right: 20px;
-      font-size: 20px;
+      font-size: 24px;
       color: orangered;
     }
   }
@@ -127,31 +199,49 @@ export default {
       input {
         display: inline-block;
         width: 65%;
-        height: 100%;
+        height: 53px;
         border: none;
         outline:none;
-        border-top: 1px solid #e8e8e8;
+        border-bottom: 1px solid #e8e8e8;
       }
       input::-webkit-input-placeholder{
         color:#a8a8a8;
       }
       input:focus{
-        border-top:1px solid #e8e8e8;  
+        border-bottom:1px solid #e8e8e8;  
       }
     }
     li:nth-of-type(3){
       padding: 0 5%;
       input{
-        width: 48%;
+        width: 46%;
       }
       .code{
         float: right;
-        width: 24%;
+        width: 26%;
         text-align: center;
         padding: 0 0 0 20px;
         color: #409eff;
         border-left: 1px solid #e8e8e8;
-        border-top: 1px solid #e8e8e8;
+      }
+      .codejishi{
+        float: right;
+        width: 26%;
+        text-align: center;
+        padding: 0 0 0 20px;
+        color: #409eff;
+        border-left: 1px solid #e8e8e8;
+      }
+    }
+    li:nth-of-type(4){
+      border-bottom: 1px solid #e8e8e8;
+      input {
+        display: inline-block;
+        width: 65%;
+        height: 51px;
+        border: none;
+        outline:none;
+        border-bottom: 1px solid #e8e8e8;
       }
     }
   }

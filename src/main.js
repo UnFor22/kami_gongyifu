@@ -5,7 +5,8 @@ import App from './App'
 import router from './router'
 
 // 按需引入部分组件
-import {Cell, Checklist, Toast, Button, TabContainer, TabContainerItem, Swipe, SwipeItem, Loadmore, Radio, Indicator, Spinner } from 'mint-ui';
+import {Cell, Checklist, Toast, Button, TabContainer, TabContainerItem, Swipe, SwipeItem, Loadmore, Radio, Indicator, Spinner, DatetimePicker  } from 'mint-ui';
+import 'mint-ui/lib/style.min.css'
 Vue.component(Cell.name, Cell);
 Vue.component(Checklist.name, Checklist);
 Vue.component(Toast);
@@ -18,6 +19,7 @@ Vue.component(Loadmore.name, Loadmore);
 Vue.component(Radio.name, Radio);
 Vue.component(Indicator);
 Vue.component(Spinner.name, Spinner);
+Vue.component(DatetimePicker.name, DatetimePicker);
 
 Vue.config.productionTip = false
 

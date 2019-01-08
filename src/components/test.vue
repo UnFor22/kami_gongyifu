@@ -11,7 +11,7 @@
       <ul>   
         <li>
           <span>信用卡卡号</span>
-          <input type="text" placeholder="请输入信用卡卡号" v-model="cardNum">
+          <input type="number" placeholder="请输入信用卡卡号" v-model="cardNum">
         </li>
         <li>
           <span>开户银行</span>
@@ -19,14 +19,14 @@
         </li>
         <li>
           <span>信用卡额度</span>
-          <input type="text" placeholder="请输入信用卡额度" v-model="mount">
+          <input type="number" placeholder="请输入信用卡额度" v-model="mount">
           <div class="wenhao">
             <img src="../assets/wenhao.png" alt="">
           </div>
         </li>
         <li>
           <span>预留手机</span>
-          <input type="text" placeholder="请输入银行预留手机号" v-model="phone">
+          <input type="number" placeholder="请输入银行预留手机号" v-model="phone">
         </li>
         
       </ul>
@@ -49,6 +49,7 @@
 </template>
 
 <script>
+import { Toast } from 'mint-ui'
 export default {
   name: 'test',
   data () {
@@ -63,12 +64,33 @@ export default {
   },
   methods:{
     topay(){
+      var reg=/^((1[3,5,8][0-9])|(166)|(14[5,7])|(17[0,6,7,8])|(19[7]))\d{8}$/;
+
       if(this.name == '' || this.name == ' ' || this.name == null){
-
-      } else if(this.name == '' || this.name == ' ' || this.name == null){
-
+        Toast({ message: '本人姓名错误', duration: 1500});
+      } else if(this.cardNum == '' || this.cardNum == ' ' || this.cardNum == null){
+        Toast({ message: '信用卡卡号错误', duration: 1500});
+      }else if(this.bank == '' || this.bank == ' ' || this.bank == null){
+        Toast({ message: '开户银行错误', duration: 1500});
+      }else if(this.mount == '' || this.mount == ' ' || this.mount == null){
+        Toast({ message: '信用卡额度错误', duration: 1500});
+      }else if(this.phone == '' || this.phone == ' ' || this.phone == null || !reg.test(this.phone)){
+        Toast({ message: '预留手机号错误', duration: 1500});
+      }else if(this.passway == '' || this.passway == ' ' || this.passway == null){
+        Toast({ message: '签约通道错误', duration: 1500});
+      } else {
+        this.$router.push({        
+          name:'pay',
+          params: {
+            name:this.name,
+            cardNum:this.cardNum,
+            bank:this.bank,
+            mount:this.mount,
+            phone:this.phone,
+            passway:this.passway
+          }
+        }) 
       }
-      this.$router.push('/pay')
     }
   }
   

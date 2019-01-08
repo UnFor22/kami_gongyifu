@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
 import Test from '@/components/test'
 import Pay from '@/components/pay'
 import Cashier from '@/components/cashier'
@@ -16,6 +15,7 @@ export default new Router({
     },
     {
       path: '/test',
+      name: 'test',
       component: Test,
       meta:{
         title:'通道信息验证'
@@ -23,6 +23,7 @@ export default new Router({
     },
     {
       path: '/pay',
+      name: 'pay',
       component: Pay,
       meta:{
         title:'银联支付'
@@ -30,6 +31,7 @@ export default new Router({
     },
     {
       path: '/cashier',
+      name: 'cashier',
       component: Cashier,
       meta:{
         title:'收银台'

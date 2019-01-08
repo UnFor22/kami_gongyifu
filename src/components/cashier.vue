@@ -19,72 +19,110 @@
       <div class="bankinfo">
         <img src="../assets/zhongxinyinhang.png" alt="">
         <div class="bankinfo_right">
-          <p>中信银行</p>
-          <p>62266226622662266226<span>信用卡</span></p>
+          <p>{{this.bank}}</p>
+          <p>{{this.showcardNum}}<span>信用卡</span></p>
         </div>
       </div>
       <ul>   
         <li>
           <span>用户名</span>
-          <input type="text" placeholder="请输入信用卡卡号" v-model="cardNum">
-          <!-- <span>思考的</span> -->
+          <input type="text" placeholder="请输入用户名" v-model="name">
         </li>
         <li>
           <span>身份证号</span>
-          <input type="text" placeholder="请输入开户银行" v-model="bank">
+          <input type="text" placeholder="请输入身份证号" v-model="idCard">
         </li>
         <li>
           <span>预留手机号</span>
-          <input type="text" placeholder="请输入信用卡额度" v-model="mount">
-          <!-- <div class="wenhao">
-            <img src="../assets/wenhao.png" alt="">
-          </div> -->
+          <input type="text" placeholder="请输入预留手机号" v-model="showphone">
         </li>
         <li>
           <span>短信验证码</span>
           <div class="getcode">
             <p>获取验证码</p>
           </div>
-          <input type="text" placeholder="请输入银行预留手机号" v-model="phone">
-
+          <input type="number" placeholder="请输入验证码" v-model="code">
         </li>
-        
       </ul>
     </div>    
     <div class="passway">
-      <!-- <div class="passway_input">
-        <span>签约通道</span>
-        <input type="text" placeholder="请输入签约通道" v-model="passway">
-      </div> -->
       <div class="passway_button">
         <span></span>
-        <input type="button" value="确认提交" @click="topay">
+        <input type="button" value="确认提交" @click="tosubmit()">
       </div>
-      <!-- <div class="passway_tips">
-        <img src="../assets/suo.png" alt="">
-        <p>信息已安全加密，仅用于银行验证</p>
-      </div> -->
+
     </div>
   </div>
 </template>
 
 <script>
+import { Toast } from 'mint-ui'
 export default {
   name: 'test',
   data () {
     return {
-      name: '',
-      cardNum: '',
-      bank: '',
-      mount: '',
-      phone: '',
-      passway: '',
+      name: '', //用户名
+      showname: '', // 展示的用户名
+      cardNum: '', // 银行卡号
+      showcardNum: '', // 展示的银行卡号
+      bank: '', // 银行名称
+      mount: '', // 金额
+      idCard: '', // 身份证号
+      showidCard: '', // 展示的身份证号
+      phone: '', // 手机号
+      showphone: '', // 展示的手机号
+      code: ''
     }
   },
   methods:{
-    topay(){
-      this.$router.push('/pay')
+    // 封装方法将指定位置之间的字符替换为*
+    replace(params1,params2,str){
+      str = str.split("")
+      for(let i = params1; i<= params2; i++){
+        str.splice(i,1,"*")
+      }
+      console.log(str.join(''))
+      return str.join('') 
+    },
+    tosubmit(){
+      var reg=/^((1[3,5,8][0-9])|(166)|(14[5,7])|(17[0,6,7,8])|(19[7]))\d{8}$/;
+
+      if(this.name == '' || this.name == ' ' || this.name == null){
+        Toast({ message: '用户名错误', duration: 1500});
+      } else if(this.idCard == '' || this.idCard == ' ' || this.idCard == null){
+        Toast({ message: '身份证号错误', duration: 1500});
+      }else if(this.code == '' || this.code == ' ' || this.code == null){
+        Toast({ message: '验证码错误', duration: 1500});
+      }else if(this.phone == '' || this.phone == ' ' || this.phone == null || !reg.test(this.phone)){
+        Toast({ message: '手机号错误', duration: 1500});
+      } else {
+        this.$router.push({        
+          path:'/cashier',
+          query: {
+            safeCode: this.safeCode,
+            validity: this.validity,          
+            name:this.$route.params.name,
+            cardNum:this.$route.params.cardNum,
+            bank:this.$route.params.bank,
+            mount:this.$route.params.mount,
+            phone:this.$route.params.phone,
+            passway:this.$route.params.passway
+          }
+        }) 
+      }
     }
+  },
+  created(){
+    console.log(this.$route.params)
+    this.phone = this.$route.params.phone
+    this.idCard = this.replace(6,13,'410426199702276515')
+    this.showphone = this.replace(2,7,this.phone)
+    console.log(this.showphone)
+    this.name = this.$route.params.name
+    this.bank = this.$route.params.bank
+    this.cardNum = this.$route.params.cardNum
+    this.showcardNum = this.replace(5,9,this.cardNum)
+    
   }
   
 }
